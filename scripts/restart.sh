@@ -21,7 +21,7 @@ for project in "${PROJECTS[@]}"; do
     echo "  ✓ 找到配置目录: $PROJECT_CONF_SOURCE"
 
     # 复制配置文件到 nginx 配置目录
-    if [ -n "$(ls -A "$PROJECT_CONF_SOURCE/*.conf" 2>/dev/null)" ]; then
+    if ls "$PROJECT_CONF_SOURCE"/*.conf 1>/dev/null 2>&1; then
       cp -v "$PROJECT_CONF_SOURCE"/*.conf "$NGINX_CONF_DIR/"
       echo "  ✓ 已复制 $project 的配置文件"
     else

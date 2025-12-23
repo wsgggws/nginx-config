@@ -4,8 +4,8 @@ set -e
 echo "🔧 开始部署 nginx 配置..."
 
 # 定义需要处理的项目列表
-# PROJECTS=("api.rss.navydev.top" "crabtris.navydev.top" "navydev.top" "rss.navydev.top")
-PROJECTS=("navydev.top")
+# "crabtris.navydev.top"
+PROJECTS=("api.rss.navydev.top" "navydev.top" "rss.navydev.top")
 
 # nginx 配置目录
 NGINX_CONF_DIR="/etc/nginx/conf.d"
@@ -22,7 +22,7 @@ for project in "${PROJECTS[@]}"; do
     echo "  ✓ 找到配置目录: $PROJECT_CONF_SOURCE"
 
     # 复制配置文件到 nginx 配置目录
-    if [ -n "$(ls -A $PROJECT_CONF_SOURCE/*.conf 2>/dev/null)" ]; then
+    if [ -n "$(ls -A "$PROJECT_CONF_SOURCE/*.conf" 2>/dev/null)" ]; then
       cp -v "$PROJECT_CONF_SOURCE"/*.conf "$NGINX_CONF_DIR/"
       echo "  ✓ 已复制 $project 的配置文件"
     else

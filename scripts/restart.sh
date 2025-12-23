@@ -15,7 +15,7 @@ for project in "${PROJECTS[@]}"; do
   echo "📦 处理项目: $project"
 
   # 项目配置文件源路径
-  PROJECT_CONF_SOURCE="/deploy/${project}/config/nginx/conf.d"
+  PROJECT_CONF_SOURCE="/root/deploy/${project}/config/nginx/conf.d"
 
   # 检查项目配置目录是否存在
   if [ -d "$PROJECT_CONF_SOURCE" ]; then

@@ -1,0 +1,97 @@
+name: Deploy Nginx Configuration
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup SSH
+        uses: webfactory/ssh-agent@v0.5.3
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Add server to known hosts
+        run: |
+          ssh-keyscan -H ${{ secrets.REMOTE_IP }} >> ~/.ssh/known_hosts
+
+      - name: 📝 Copy nginx configuration files to server
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.REMOTE_IP }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          source: "config/nginx/**"
+          target: "/tmp/nginx-deploy/"
+          strip_components: 0
+          overwrite: true
+
+      - name: 📜 Copy restart script to server
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.REMOTE_IP }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          source: "scripts/restart.sh"
+          target: "/tmp/nginx-deploy/"
+          strip_components: 0
+          overwrite: true
+
+      - name: 📋 Copy documentation files to server
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.REMOTE_IP }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          source: "README.md,docs/**"
+          target: "/tmp/nginx-deploy/"
+          strip_components: 0
+          overwrite: true
+
+      - name: 🚀 Deploy nginx configuration
+        run: |
+          ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.REMOTE_IP }} << 'EOF'
+            set -e
+            
+            echo "📦 部署 nginx 配置文件..."
+            
+            # 备份当前 nginx 配置
+            BACKUP_DIR="/etc/nginx/backup/$(date +%Y%m%d_%H%M%S)"
+            sudo mkdir -p "$BACKUP_DIR"
+            sudo cp -r /etc/nginx/nginx.conf "$BACKUP_DIR/" 2>/dev/null || true
+            sudo cp -r /etc/nginx/conf.d/* "$BACKUP_DIR/" 2>/dev/null || true
+            sudo cp -r /etc/nginx/snippets/* "$BACKUP_DIR/" 2>/dev/null || true
+            echo "✓ 已备份到 $BACKUP_DIR"
+            
+            # 复制新的配置文件
+            echo "📝 复制新配置文件..."
+            sudo cp -r /tmp/nginx-deploy/config/nginx/nginx.conf /etc/nginx/nginx.conf
+            sudo cp -r /tmp/nginx-deploy/config/nginx/conf.d/* /etc/nginx/conf.d/
+            sudo mkdir -p /etc/nginx/snippets
+            sudo cp -r /tmp/nginx-deploy/config/nginx/snippets/* /etc/nginx/snippets/
+            
+            # 执行重启脚本
+            echo "🔄 执行重启脚本..."
+            sudo chmod +x /tmp/nginx-deploy/scripts/restart.sh
+            sudo /tmp/nginx-deploy/scripts/restart.sh
+            
+            # 清理临时文件
+            echo "🧹 清理临时文件..."
+            rm -rf /tmp/nginx-deploy
+            
+            echo "✅ 部署完成！"
+          EOF
+
+      - name: 📊 Deployment summary
+        if: success()
+        run: |
+          echo "🎉 Nginx 配置已成功部署到服务器"
+          echo "服务器: ${{ secrets.REMOTE_IP }}"
+          echo "部署时间: $(date)"

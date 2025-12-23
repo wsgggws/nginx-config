@@ -1,0 +1,29 @@
+# .gitignore
+
+# 数据目录
+data/
+backups/
+logs/
+
+# 证书私钥（敏感信息）
+*.key
+*.pem
+
+# 临时文件
+*.log
+*.tmp
+*.swp
+*~
+
+# macOS
+.DS_Store
+
+# 编辑器
+.vscode/
+.idea/
+*.sublime-*
+
+# 环境变量
+.env
+.env.local
+.env.*.local

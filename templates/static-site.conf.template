@@ -1,0 +1,87 @@
+# ============================================
+# 静态网站配置模板
+# ============================================
+# 使用说明：
+# 1. 复制此模板到子项目的 config/nginx/conf.d/ 目录
+# 2. 重命名为 yourdomain.com.conf
+# 3. 替换所有 DOMAIN_NAME 为实际域名
+# 4. 替换 /path/to/html 为实际静态文件路径
+# 5. 根据需要调整配置
+
+server {
+    listen 443 ssl http2;
+    listen [::]:443 ssl http2;
+    server_name DOMAIN_NAME www.DOMAIN_NAME;
+
+    # ========================================
+    # SSL 证书配置
+    # ========================================
+    ssl_certificate /etc/letsencrypt/live/DOMAIN_NAME/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/DOMAIN_NAME/privkey.pem;
+    
+    # 引用中央项目的公共 SSL 参数
+    include /etc/nginx/snippets/ssl-params.conf;
+
+    # ========================================
+    # 安全头配置
+    # ========================================
+    include /etc/nginx/snippets/security-headers.conf;
+    
+    # 如需自定义 CSP，可以覆盖默认配置
+    # add_header Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline';" always;
+
+    # ========================================
+    # 网站根目录
+    # ========================================
+    root /usr/share/nginx/html/DOMAIN_NAME;
+    index index.html index.htm;
+
+    # ========================================
+    # 静态资源缓存（引用公共配置）
+    # ========================================
+    include /etc/nginx/snippets/static-cache.conf;
+
+    # ========================================
+    # 主要页面处理
+    # ========================================
+    location / {
+        # 支持前端路由（SPA 应用）
+        try_files $uri $uri/ /index.html;
+        
+        # 或者简单的静态站点
+        # try_files $uri $uri/ =404;
+    }
+
+    # ========================================
+    # 特殊路径配置示例
+    # ========================================
+    
+    # API 代理示例（如需要）
+    # location /api/ {
+    #     include /etc/nginx/snippets/proxy-params.conf;
+    #     proxy_pass http://backend:8080/;
+    # }
+    
+    # 禁止访问隐藏文件
+    location ~ /\. {
+        deny all;
+        access_log off;
+        log_not_found off;
+    }
+
+    # ========================================
+    # 错误页面
+    # ========================================
+    error_page 404 /404.html;
+    error_page 500 502 503 504 /50x.html;
+    
+    location = /50x.html {
+        root /usr/share/nginx/html;
+    }
+
+    # ========================================
+    # 日志配置（可选）
+    # ========================================
+    # access_log /var/log/nginx/DOMAIN_NAME.access.log main;
+    # error_log /var/log/nginx/DOMAIN_NAME.error.log warn;
+}

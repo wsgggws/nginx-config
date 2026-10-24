@@ -76,6 +76,9 @@ jobs:
             sudo cp -r /tmp/nginx-deploy/config/nginx/conf.d/* /etc/nginx/conf.d/
             sudo mkdir -p /etc/nginx/snippets
             sudo cp -r /tmp/nginx-deploy/config/nginx/snippets/* /etc/nginx/snippets/
+            # 索引页（/help）由 nginx 直接发
+            sudo mkdir -p /var/www/navydev/help
+            sudo cp -r /tmp/nginx-deploy/help/* /var/www/navydev/help/
             
             # 执行重启脚本
             echo "🔄 执行重启脚本..."

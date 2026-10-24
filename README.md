@@ -20,7 +20,9 @@ nginx/
 │       │   └── letsencrypt.conf             # ACME 验证
 │       └── conf.d/
 │           ├── http.conf                   # HTTP 重定向配置示例
-│           └── lector.conf                 # Lector 站点配置（含 HTTP/2 与缓存）
+│           └── navydev-top.conf            # navydev.top 的四个站点
+│       └── help/
+│           └── index.html                  # /help 索引页（nginx 直接发）
 ├── templates/                     # 配置文件模板
 │   ├── static-site.conf.template             # 静态网站配置模板
 │   └── reverse-proxy.conf.template           # 反向代理配置模板
@@ -47,16 +49,34 @@ nginx/
 - 新增站点只需最小化配置
 - 公共配置更新自动应用到所有站点
 
-## 📦 已接入的站点
+## 📦 navydev.top 上的站点
 
-| 站点 | 配置文件 | 后端 |
+四个站点都在 `navydev.top` 这一个域名下，用路径区分：
+
+| 路径 | 是什么 | 后端 |
 | --- | --- | --- |
-| Lector（EPUB 阅读器 + 有声书） | `config/nginx/conf.d/lector.conf` | `127.0.0.1:8000` |
+| `/book` | Lector —— EPUB 阅读器 + 有声书播放器 | `127.0.0.1:8000` |
+| `/me` | 原 `navydev.top` | 待填（`upstream me_app`） |
+| `/rss` | 原 `rss.navydev.top` | 待填（`upstream rss_app`） |
+| `/help` | 索引页 | nginx 直接发静态文件 |
 
-Lector 的站点配置里有几处特别处理：HTTP/2 走 `listen 443 ssl http2;`；
-静态资源在 nginx 这层缓存（它的 css/js 没有版本号，所以不用 immutable 长期缓存，
-免得前端更新了浏览器还拿旧的）；音频与上传各自单开一个 location，
-合成慢、上传大都不会被掐断。
+配置在 `config/nginx/conf.d/navydev-top.conf`；索引页在 `config/nginx/help/index.html`，
+部署时复制到 `/var/www/navydev/help/`。
+
+老的子域名会 301 到新路径（`rss.navydev.top` → `navydev.top/rss`），老书签不会失效。
+
+Lector 那段有几处特别处理：
+
+- HTTP/2 走 `listen 443 ssl http2;`（**nginx 1.18 用这个写法**；
+  1.25.1 以上可以改成 `http2 on;`，但那样 1.18 会起不来）。
+- 后端要设 `LECTOR_BASE_PATH=/book`，路径原样传过去；
+  `proxy_pass` 后面**不能带斜杠**，带了就等于把 `/book` 前缀吃掉。
+- 静态资源在 nginx 这层缓存（它的 css/js 没有版本号，所以不用 immutable 长期缓存，
+  免得前端更新了浏览器还拿旧的）。
+- 音频与上传各自单开一个 location，合成慢、上传大都不会被掐断。
+
+> `/me` 与 `/rss` 的 upstream 是占位的，部署前把 `me_app` / `rss_app`
+> 换成原来那两个子域名指的后端地址。
 
 ## 🚀 使用方式
 

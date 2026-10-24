@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>navydev.top · 索引</title>
+<style>
+  :root {
+    --bg: #faf9f6;
+    --surface: #ffffff;
+    --text: #23201c;
+    --dim: #6b655c;
+    --faint: #a49d92;
+    --border: #e6e2da;
+    --accent: #c8791f;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #16181c; --surface: #1e2126; --text: #d8d5cf; --dim: #8b8781;
+      --faint: #5f5c58; --border: #2a2e34; --accent: #e0a054;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 3rem 1.25rem 4rem;
+    background: var(--bg); color: var(--text);
+    font: 15px/1.7 -apple-system, "PingFang SC", "Microsoft YaHei", "Segoe UI", system-ui, sans-serif;
+  }
+  main { max-width: 44rem; margin: 0 auto; }
+  h1 { font-size: 1.5rem; margin: 0 0 .25rem; letter-spacing: .02em; }
+  .lead { color: var(--dim); margin: 0 0 2.5rem; font-size: .95rem; }
+  ul { list-style: none; margin: 0; padding: 0; display: grid; gap: .75rem; }
+  a.site {
+    display: block; text-decoration: none; color: inherit;
+    background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
+    padding: 1rem 1.15rem; transition: border-color .15s ease, transform .15s ease;
+  }
+  a.site:hover { border-color: var(--accent); transform: translateY(-1px); }
+  .path { font-family: "SF Mono", Menlo, Consolas, monospace; color: var(--accent); font-size: .85rem; }
+  .name { font-size: 1.05rem; font-weight: 600; margin: .2rem 0 .15rem; }
+  .desc { color: var(--dim); font-size: .9rem; }
+  footer { margin-top: 3rem; color: var(--faint); font-size: .8rem; }
+  code { font-family: "SF Mono", Menlo, Consolas, monospace; font-size: .85em;
+         background: var(--surface); border: 1px solid var(--border); border-radius: 4px; padding: .05em .35em; }
+</style>
+</head>
+<body>
+<main>
+  <h1>navydev.top</h1>
+  <p class="lead">这个域名下的站点都在这儿了。原来的子域名已经并过来，老链接会自动跳到新位置。</p>
+
+  <ul>
+    <li>
+      <a class="site" href="/book/">
+        <span class="path">/book</span>
+        <div class="name">Lector · EPUB 阅读器 + 有声书</div>
+        <div class="desc">上传 EPUB 就能读、能听。网页端与终端端共享同一个阅读位置，两边接着读同一处。</div>
+      </a>
+    </li>
+    <li>
+      <a class="site" href="/me/">
+        <span class="path">/me</span>
+        <div class="name">个人主页</div>
+        <div class="desc">原 <code>navydev.top</code> 的内容。</div>
+      </a>
+    </li>
+    <li>
+      <a class="site" href="/rss/">
+        <span class="path">/rss</span>
+        <div class="name">RSS</div>
+        <div class="desc">原 <code>rss.navydev.top</code> 的内容。</div>
+      </a>
+    </li>
+    <li>
+      <a class="site" href="/help/">
+        <span class="path">/help</span>
+        <div class="name">本页</div>
+        <div class="desc">这个索引页。</div>
+      </a>
+    </li>
+  </ul>
+
+  <footer>由 nginx 直接提供，不经过应用。</footer>
+</main>
+</body>
+</html>

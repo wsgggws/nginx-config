@@ -4,7 +4,7 @@ set -e
 echo "🔧 开始部署 nginx 配置..."
 
 # 定义需要处理的项目列表
-PROJECTS=("navydev.top" "rss.navydev.top" "crabtris.navydev.top")
+PROJECTS=("navydev.top" "rss.navydev.top" "crabtris.navydev.top" "lector")
 
 # nginx 配置目录
 NGINX_CONF_DIR="/etc/nginx/conf.d"

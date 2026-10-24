@@ -19,7 +19,8 @@ nginx/
 │       │   ├── proxy-params.conf            # 反向代理参数
 │       │   └── letsencrypt.conf             # ACME 验证
 │       └── conf.d/
-│           └── http.conf                   # HTTP 重定向配置示例
+│           ├── http.conf                   # HTTP 重定向配置示例
+│           └── lector.conf                 # Lector 站点配置（含 HTTP/2 与缓存）
 ├── templates/                     # 配置文件模板
 │   ├── static-site.conf.template             # 静态网站配置模板
 │   └── reverse-proxy.conf.template           # 反向代理配置模板
@@ -45,6 +46,17 @@ nginx/
 
 - 新增站点只需最小化配置
 - 公共配置更新自动应用到所有站点
+
+## 📦 已接入的站点
+
+| 站点 | 配置文件 | 后端 |
+| --- | --- | --- |
+| Lector（EPUB 阅读器 + 有声书） | `config/nginx/conf.d/lector.conf` | `127.0.0.1:8000` |
+
+Lector 的站点配置里有几处特别处理：HTTP/2 走 `listen 443 ssl http2;`；
+静态资源在 nginx 这层缓存（它的 css/js 没有版本号，所以不用 immutable 长期缓存，
+免得前端更新了浏览器还拿旧的）；音频与上传各自单开一个 location，
+合成慢、上传大都不会被掐断。
 
 ## 🚀 使用方式
 

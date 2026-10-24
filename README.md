@@ -79,6 +79,10 @@ nginx/
   免得前端更新了浏览器还拿旧的）。
 - 音频与上传各自单开一个 location，合成慢、上传大都不会被掐断。
 
+站点默认拒绝明显的 `curl`、`wget`、`python-requests` 等命令行 User-Agent。
+健康检查、带 `X-Lector-Client: terminal` 的官方终端和带 Bearer token 的
+管理请求例外；应用层还会继续校验同源来源和 token。
+
 `/me` 与 `/rss` 的前端必须按子路径构建：Vite 的 `base` 分别是 `/me/` 与
 `/rss/`。否则二者的 `/assets` 会冲突，只能有一个站点正常工作。
 

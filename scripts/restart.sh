@@ -1,36 +1,10 @@
 #!/bin/bash
 set -e
 
-echo "🔧 开始部署 nginx 配置..."
+echo "🔧 检查并重载中央 nginx 配置..."
 
-# 定义需要处理的项目列表
-PROJECTS=("navydev.top" "rss.navydev.top" "crabtris.navydev.top" "lector")
-
-# nginx 配置目录
-NGINX_CONF_DIR="/etc/nginx/conf.d"
-
-# 遍历每个项目
-for project in "${PROJECTS[@]}"; do
-  echo "📦 处理项目: $project"
-
-  # 项目配置文件源路径
-  PROJECT_CONF_SOURCE="/root/deploy/${project}/config/nginx/conf.d"
-
-  # 检查项目配置目录是否存在
-  if [ -d "$PROJECT_CONF_SOURCE" ]; then
-    echo "  ✓ 找到配置目录: $PROJECT_CONF_SOURCE"
-
-    # 复制配置文件到 nginx 配置目录
-    if ls "$PROJECT_CONF_SOURCE"/*.conf 1>/dev/null 2>&1; then
-      cp -v "$PROJECT_CONF_SOURCE"/*.conf "$NGINX_CONF_DIR/"
-      echo "  ✓ 已复制 $project 的配置文件"
-    else
-      echo "  ⚠ 警告: $PROJECT_CONF_SOURCE 中没有找到 .conf 文件"
-    fi
-  else
-    echo "  ⚠ 警告: 配置目录不存在 $PROJECT_CONF_SOURCE"
-  fi
-done
+# 站点配置只由 nginx-config 仓库发布。不要在这里回读各业务项目里的旧
+# conf.d，否则 navydev.top / rss.navydev.top 的旧配置会覆盖中央路由。
 
 echo ""
 echo "🔍 测试 nginx 配置..."

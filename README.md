@@ -55,15 +55,16 @@ nginx/
 
 | 路径 | 是什么 | 后端 |
 | --- | --- | --- |
-| `/book` | Lector —— EPUB 阅读器 + 有声书播放器 | `127.0.0.1:8000` |
-| `/me` | 原 `navydev.top` | 待填（`upstream me_app`） |
-| `/rss` | 原 `rss.navydev.top` | 待填（`upstream rss_app`） |
+| `/book` | Lector —— EPUB 阅读器 + 有声书播放器 | `127.0.0.1:8010` |
+| `/me` | 原 `navydev.top` | 静态站 `/var/www/navydev.top/me/` |
+| `/rss` | 原 `rss.navydev.top` | 静态站 `/var/www/navydev.top/rss/` + API `127.0.0.1:8000` |
 | `/help` | 索引页 | nginx 直接发静态文件 |
 
 配置在 `config/nginx/conf.d/navydev-top.conf`；索引页在 `config/nginx/help/index.html`，
 部署时复制到 `/var/www/navydev/help/`。
 
 老的子域名会 301 到新路径（`rss.navydev.top` → `navydev.top/rss`），老书签不会失效。
+`/nghh` 也会 301 到 `/me/nghh/`。
 
 Lector 那段有几处特别处理：
 
@@ -75,8 +76,8 @@ Lector 那段有几处特别处理：
   免得前端更新了浏览器还拿旧的）。
 - 音频与上传各自单开一个 location，合成慢、上传大都不会被掐断。
 
-> `/me` 与 `/rss` 的 upstream 是占位的，部署前把 `me_app` / `rss_app`
-> 换成原来那两个子域名指的后端地址。
+`/me` 与 `/rss` 的前端必须按子路径构建：Vite 的 `base` 分别是 `/me/` 与
+`/rss/`。否则二者的 `/assets` 会冲突，只能有一个站点正常工作。
 
 ## 🚀 使用方式
 

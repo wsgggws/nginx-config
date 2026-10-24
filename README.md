@@ -57,6 +57,7 @@ nginx/
 | --- | --- | --- |
 | `/`、`/help` | 索引页 | nginx 直接发静态文件 |
 | `/book` | Lector —— EPUB 阅读器 + 有声书播放器 | `127.0.0.1:8010` |
+| `/blog` | Hugo 博客（同时发布到 GitHub Pages） | 静态站 `/var/www/navydev.top/blog/` |
 | `/me` | 原 `navydev.top` | 静态站 `/var/www/navydev.top/me/` |
 | `/rss` | 原 `rss.navydev.top` | 静态站 `/var/www/navydev.top/rss/` + API `127.0.0.1:8000` |
 | `/crabtris` | 原 `crabtris.navydev.top` | 静态站 `/var/www/crabtris.navydev.top/` |

@@ -49,20 +49,22 @@ nginx/
 - 新增站点只需最小化配置
 - 公共配置更新自动应用到所有站点
 
-## 📦 navydev.top 上的站点
+## 📦 navydev.top 上的路径
 
-四个站点都在 `navydev.top` 这一个域名下，用路径区分：
+所有站点都在 `navydev.top` 这一个域名下，用路径区分：
 
 | 路径 | 是什么 | 后端 |
 | --- | --- | --- |
+| `/`、`/help` | 索引页 | nginx 直接发静态文件 |
 | `/book` | Lector —— EPUB 阅读器 + 有声书播放器 | `127.0.0.1:8010` |
 | `/me` | 原 `navydev.top` | 静态站 `/var/www/navydev.top/me/` |
 | `/rss` | 原 `rss.navydev.top` | 静态站 `/var/www/navydev.top/rss/` + API `127.0.0.1:8000` |
-| `/help` | 索引页 | nginx 直接发静态文件 |
+| `/crabtris` | 原 `crabtris.navydev.top` | 静态站 `/var/www/crabtris.navydev.top/` |
 
 配置在 `config/nginx/conf.d/navydev-top.conf`；索引页在 `config/nginx/help/index.html`，
 部署时复制到 `/var/www/navydev/help/`。
 
+各路径都不要求尾斜杠；`/me/`、`/rss/`、`/crabtris/` 等旧形式仍然可用。
 老的子域名会 301 到新路径（`rss.navydev.top` → `navydev.top/rss`），老书签不会失效。
 `/nghh` 也会 301 到 `/me/nghh/`。
 

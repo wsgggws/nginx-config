@@ -56,7 +56,7 @@ nginx/
 | 路径 | 是什么 | 后端 |
 | --- | --- | --- |
 | `/`、`/help` | 索引页 | nginx 直接发静态文件 |
-| `/book` | Lector —— EPUB 阅读器 + 有声书播放器 | `127.0.0.1:8010` |
+| `/ebook` | 有声电子书 | `127.0.0.1:8010` |
 | `/blog` | Hugo 博客（同时发布到 GitHub Pages） | 静态站 `/var/www/navydev.top/blog/` |
 | `/me` | 原 `navydev.top` | 静态站 `/var/www/navydev.top/me/` |
 | `/rss` | 原 `rss.navydev.top` | 静态站 `/var/www/navydev.top/rss/` + API `127.0.0.1:8000` |
@@ -69,12 +69,12 @@ nginx/
 老的子域名会 301 到新路径（`rss.navydev.top` → `navydev.top/rss`），老书签不会失效。
 `/nghh` 也会 301 到 `/me/nghh/`。
 
-Lector 那段有几处特别处理：
+有声电子书那段有几处特别处理：
 
 - HTTP/2 走 `listen 443 ssl http2;`（**nginx 1.18 用这个写法**；
   1.25.1 以上可以改成 `http2 on;`，但那样 1.18 会起不来）。
-- 后端要设 `LECTOR_BASE_PATH=/book`，路径原样传过去；
-  `proxy_pass` 后面**不能带斜杠**，带了就等于把 `/book` 前缀吃掉。
+- 后端要设 `LECTOR_BASE_PATH=/ebook`，路径原样传过去；
+  `proxy_pass` 后面**不能带斜杠**，带了就等于把 `/ebook` 前缀吃掉。
 - 静态资源在 nginx 这层缓存（它的 css/js 没有版本号，所以不用 immutable 长期缓存，
   免得前端更新了浏览器还拿旧的）。
 - 音频与上传各自单开一个 location，合成慢、上传大都不会被掐断。

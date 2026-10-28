@@ -56,14 +56,14 @@ nginx/
 | 路径 | 是什么 | 后端 |
 | --- | --- | --- |
 | `/`、`/help` | 索引页 | nginx 直接发静态文件 |
-| `/ebook` | 有声电子书 | `127.0.0.1:8010` |
+| `/ebook` | navy's ebook | `127.0.0.1:8010` |
 | `/blog` | Hugo 博客（同时发布到 GitHub Pages） | 静态站 `/var/www/navydev.top/blog/` |
 | `/me` | 原 `navydev.top` | 静态站 `/var/www/navydev.top/me/` |
 | `/rss` | 原 `rss.navydev.top` | 静态站 `/var/www/navydev.top/rss/` + API `127.0.0.1:8000` |
 | `/crabtris` | 原 `crabtris.navydev.top` | 静态站 `/var/www/crabtris.navydev.top/` |
 
 配置在 `config/nginx/conf.d/navydev-top.conf`；索引页在 `config/nginx/help/index.html`，
-部署时复制到 `/var/www/navydev/help/`。
+部署时复制到 `/var/www/navydev/help/`。首页采用 [QingShan.nvim](https://github.com/wsgggws/QingShan.nvim) 墨绿配色，提供 GitHub 与 BiliBili 图标链接。
 
 各路径都不要求尾斜杠；`/me/`、`/rss/`、`/crabtris/` 等旧形式仍然可用。
 老的子域名会 301 到新路径（`rss.navydev.top` → `navydev.top/rss`），老书签不会失效。

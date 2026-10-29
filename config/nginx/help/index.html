@@ -1,17 +1,19 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-CN" data-theme="luzhu">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'unsafe-inline'; img-src 'self'; base-uri 'none'; frame-ancestors 'none'">
 <title>navydev.top</title>
+<meta name="theme-color" content="#1D3229">
 <link rel="icon" type="image/png" href="/help/favicon.png">
 <style>
-  /* QingShan.nvim: 墨绿底、竹青强调、暖灰次要文字。 */
+  /* LuZhu.nvim: 潭绿为底、珠白文字、碧玉强调。 */
   :root {
     color-scheme: dark;
     --bg: #1D3229;
     --surface: #243B2E;
+    --glow: #293F30;
     --text: #DCE8D5;
     --dim: #AEC0AB;
     --border: #56785D;
@@ -21,7 +23,7 @@
   body {
     margin: 0;
     padding: 3rem 1.25rem;
-    background: radial-gradient(ellipse at 50% 0, #293F30, transparent 70%), var(--bg);
+    background: radial-gradient(ellipse at 50% 0, var(--glow), transparent 70%), var(--bg);
     min-height: 100vh;
     color: var(--text);
     font: 16px/1.7 -apple-system, "PingFang SC", "Microsoft YaHei", "Segoe UI", system-ui, sans-serif;

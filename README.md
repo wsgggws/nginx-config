@@ -63,7 +63,7 @@ nginx/
 | `/crabtris` | 原 `crabtris.navydev.top` | 静态站 `/var/www/crabtris.navydev.top/` |
 
 配置在 `config/nginx/conf.d/navydev-top.conf`；索引页在 `config/nginx/help/index.html`，
-部署时复制到 `/var/www/navydev/help/`。首页采用 [QingShan.nvim](https://github.com/wsgggws/QingShan.nvim) 墨绿配色，提供 GitHub 与 BiliBili 图标链接。
+部署时复制到 `/var/www/navydev/help/`。首页采用 [LuZhu.nvim](https://github.com/wsgggws/LuZhu.nvim) 最新潭绿配色作为默认主题（底色 `#1D3229`、正文 `#DCE8D5`、强调色 `#89C79B`），提供 GitHub 与 BiliBili 图标链接。
 
 各路径都不要求尾斜杠；`/me/`、`/rss/`、`/crabtris/` 等旧形式仍然可用。
 老的子域名会 301 到新路径（`rss.navydev.top` → `navydev.top/rss`），老书签不会失效。

@@ -27,3 +27,7 @@ logs/
 .env
 .env.local
 .env.*.local
+
+# Python 验证缓存
+__pycache__/
+*.pyc

@@ -16,6 +16,12 @@
 - `metric-locations.conf` 负责精简页面、配置/摘要 JSON、完整报告与 Netdata 子路径反代。日志从原始请求取路径并去掉查询参数，保留重写前的入口。Netdata 本机服务由监控项目管理。
 - 首次上线先等待监控项目部署成功，再发布中央配置。需要排查监控服务时读该项目的 `docs/operations.md`。
 
+## 限流
+
+- 限流分类与额度统一在 `01-rate-limits.conf` 和 `navydev-rate-limits.conf`；按规范化 `$uri` 分类，主域名与仍代理后端的旧域名共用额度。
+- 新增/调整路由时核对分类、server 级规则继承与静态突发；子 location 写入任一 `limit_req` 或 `limit_conn` 会覆盖父层同类规则。选型、真实 IP 与分布式防护边界见 [docs/RATE_LIMIT_RESEARCH.md](docs/RATE_LIMIT_RESEARCH.md)。
+- 限流行为变更用真实 Nginx 验证正常、429、恢复、多来源总额度及慢请求并发；页面显示中文提示，API 保持 429 JSON 与 Retry-After。压测仅使用本机临时站点，生产只做低频正常验收。
+
 ## 验证与发布
 
 修改路由时验证完整配置及实际 HTTP 行为，覆盖受影响路径和原有应用；本机验证可在临时配置副本中替换证书、路径和端口。线上 `nginx -t` 成功后才 reload。

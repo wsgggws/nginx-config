@@ -20,7 +20,7 @@ nginx/
 │       │   └── letsencrypt.conf             # ACME 验证
 │       └── conf.d/
 │           ├── http.conf                   # HTTP 重定向配置示例
-│           └── navydev-top.conf            # navydev.top 的四个站点
+│           └── navydev-top.conf            # navydev.top 的站点入口
 │       └── help/
 │           └── index.html                  # /help 索引页（nginx 直接发）
 ├── templates/                     # 配置文件模板
@@ -56,21 +56,22 @@ nginx/
 | 路径 | 是什么 | 后端 |
 | --- | --- | --- |
 | `/`、`/help` | 索引页 | nginx 直接发静态文件 |
+| `/me` | 原 `navydev.top` | 静态站 `/var/www/navydev.top/me/` |
 | `/ebook` | navy's ebook | `127.0.0.1:8010` |
 | `/blog` | Hugo 博客（同时发布到 GitHub Pages） | 静态站 `/var/www/navydev.top/blog/` |
-| `/me` | 原 `navydev.top` | 静态站 `/var/www/navydev.top/me/` |
 | `/rss` | 原 `rss.navydev.top` | 静态站 `/var/www/navydev.top/rss/` + API `127.0.0.1:8000` |
 | `/crabtris` | 原 `crabtris.navydev.top` | 静态站 `/var/www/crabtris.navydev.top/` |
 | `/metric` | 访问统计 + CPU/内存/磁盘/网络（公开） | GoAccess 静态报告 + Netdata `127.0.0.1:19999` |
 
 配置在 `config/nginx/conf.d/navydev-top.conf`；索引页在 `config/nginx/help/index.html`，
 部署时复制到 `/var/www/navydev/help/`。首页采用 [LuZhu.nvim](https://github.com/wsgggws/LuZhu.nvim) 最新潭绿配色作为默认主题（底色 `#1D3229`、正文 `#DCE8D5`、强调色 `#89C79B`），提供 GitHub 与 BiliBili 图标链接。
+目录顺序固定为 `/me`、`/ebook`、`/blog`、`/rss`、`/crabtris`、`/metric`；`/` 与 `/help` 使用同一份索引。
 
 各路径都不要求尾斜杠；`/me/`、`/rss/`、`/crabtris/` 等旧形式仍然可用。
 老的子域名会 301 到新路径（`rss.navydev.top` → `navydev.top/rss`），老书签不会失效。
 `/nghh` 也会 301 到 `/me/nghh/`。
 
-`/metric` 对应独立项目 `../navydev.top_metric`，公开显示精简总览（系统卡片在上，路径计数在下）。
+`/metric` 对应独立项目 `../navydev.top_metric`，公开显示精简总览（系统数值和趋势在上，访问图表和路径计数在下）。
 该项目的 CI 首次自动安装监控依赖，后续跳过安装并更新页面和程序；首次部署
 完成后再发布本仓库配置。手动部署入口为 `sudo bash scripts/deploy.sh`。
 `00-metric-log.conf` 保留重写前路径并去掉查询参数；`metric-locations.conf` 提供公开页面、配置/摘要 JSON、
@@ -94,6 +95,55 @@ nginx/
 
 `/me` 与 `/rss` 的前端必须按子路径构建：Vite 的 `base` 分别是 `/me/` 与
 `/rss/`。否则二者的 `/assets` 会冲突，只能有一个站点正常工作。
+
+## 请求限流
+
+采用 Nginx 内置 `limit_req` + `limit_conn`，不新增服务。分类与额度定义在
+`config/nginx/conf.d/01-rate-limits.conf`，执行规则在
+`config/nginx/snippets/navydev-rate-limits.conf`，由主站及仍代理后端的旧子域名统一引用。
+
+| 范围 | 每 IP 持续速率 / 突发额度 | 所有 IP 合计持续速率 / 突发额度 | 同时处理请求 |
+| --- | --- | --- | --- |
+| 全部内容：`/`、`/help`、`/me`、`/ebook` 页面/JS、`/blog`、`/rss` 前端、`/crabtris`、`/metric` 静态页面与 JSON，以及下列接口 | 30 次/秒 / 100 | 200 次/秒 / 200 | — |
+| 电子书 `/ebook/api/`（含上传、音频）、RSS `/rss/backend/` 与文档/OpenAPI、仍代理 RSS 的旧子域名 | 5 次/秒 / 15 | 后端组共享 30 次/秒 / 30 | 每 IP 8，后端组共享 32 |
+| Netdata `/metric/system/api/` | 15 次/秒 / 60 | Netdata API 组共享 60 次/秒 / 120 | — |
+
+这些是小站初始保护值，尚非容量压测结果。各层叠加生效；同一 IP 切换路径不会重置共享额度。
+每个 CSS/JS/图片、每次 API 调用分别计一次请求，所以静态内容和完整监控面板保留较大突发余量。
+电子书播放器预取后续 3 句的音频和词边界，后端并发额度兼顾这组请求。
+
+算法限制持续平均速率，允许短时突发；`nodelay` 不排队等待，超额直接返回 **429**，
+额度随时间恢复。并发限制覆盖整个慢请求处理/传输期间，避免上传和音频合成长期占满后端。
+HTTP/2 的每个在途请求各占一份并发额度。纯 301/302 跳转和原有 UA 的 403 在更早阶段返回，
+内容目标受限；ACME 验证保留原有 HTTP 通道。Bearer token 和官方终端不豁免限流。
+
+超限页面显示中文提示，提供“重试当前页面”和“返回首页”；API 返回兼容电子书/RSS 的中文 JSON 错误，
+统一附带 `Retry-After: 5` 和 `Cache-Control: no-store`。提示页不自动刷新或重新提交上传；
+`/metric` 会明确提示访问频繁，按原刷新间隔重试。完整 Netdata 仪表板沿用上游自己的错误界面，API 返回相同的 429 JSON。
+
+使用真实连接来源 IP；不信任客户端自行提交的 `X-Forwarded-For`。以后引入 CDN 时，
+需只信任供应商已核实的代理网段并限制源站入口。共享总额度能保护后端，但被攻击者占满时正常请求
+也可能收到 429；本机限流无法抵御打满带宽的分布式攻击，持续攻击应增加上游 CDN/WAF/DDoS 防护。
+选型、继承与 URI 规范化依据见 [限流研究](docs/RATE_LIMIT_RESEARCH.md)。
+
+调参时同时检查 rate、burst、并发数和真实访问错误率。主访问日志中的 `lr="REJECTED"` /
+`lc="REJECTED"` 表示 Nginx 主动限流，error log 会记录命中的 zone；应用自己的 429 不会冒充该状态。
+修改各路径 location 时继承 server 整组规则；子 location 自定义一条 `limit_req` 或 `limit_conn`
+会覆盖父层同类规则，应同步检查全部保护层。
+
+## 验证与发布
+
+```bash
+# 本地需真实 nginx、openssl、Python 标准库和 ShellCheck
+python3 -m unittest discover -s tests -v
+shellcheck scripts/*.sh
+for script in scripts/*.sh; do bash -n "$script"; done
+```
+
+测试只启动本机临时 Nginx 和模拟后端，验证完整配置、入口顺序、静态/动态额度、
+多来源总额度、并发上限、友好提示、超限后恢复和绕过边界；模拟 IP 的专用头只在临时配置中受信任。
+CI 在 push/PR 时执行，tag 部署也先执行相同检查，通过后再上传、线上 `nginx -t` 和 reload。
+发布前核对远程 tag，创建新的 `v*.*.*` tag。验收记录见 [验证记录](docs/VERIFICATION.md)。
 
 ## 🚀 使用方式
 

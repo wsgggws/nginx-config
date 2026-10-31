@@ -242,6 +242,13 @@ class RateLimitTest(unittest.TestCase):
         self.assertIn(429, self.flood("/metric/system/api/v1/info", 120))
         self.assertIn('zone "navydev_metric_ip"', self.errors())
 
+    def test_ebook_cover_uses_static_budget(self):
+        path = "/ebook/api/v1/books/test/cover"
+        self.assertEqual(set(self.flood(path, 24)), {200})
+        self.assertIn(429, self.flood("/ebook/api/v1/books", 40))
+        self.assertEqual(self.request(path)[0], 200)
+        self.assertEqual(self.request("/ebook/api/v1/books/test/cover-other")[0], 429)
+
     def test_distributed_backend_and_site_limits(self):
         self.assertIn(429, self.flood("/rss/backend/test", 128, distributed=True))
         errors = self.errors()

@@ -26,6 +26,8 @@ Nginx 官方支持同时限制同一 IP 和整个虚拟主机的请求速率，�
 
 电子书音频和上传都属于电子书 API，开始请求时计速率，处理期间占用并发名额；传输一个音频文件不会按每秒重复计数。静态页面的多个 CSS、JS、图片各自算一次请求，所以允许较大 burst；`/metric` 聚合页每次轮询的四个指标请求同样需要突发余量。`/me`、`/blog`、`/crabtris`、RSS 前端和索引页共享基线，避免为每个静态项目复制相同配置。
 
+电子书封面 `/ebook/api/v1/books/<id>/cover` 位于 API 前缀下，但实现是读取已有文件的 `FileResponse`，归普通资源额度。仅用 URL 的 API 前缀粗分会误伤书架首屏批量图片；已通过真实浏览器发现并补充批量封面的 Nginx 回归测试。来源：相邻 `navydev.top_ebook/lector/api/books.py` 的 `get_cover`，当前函数第 153–173 行。
+
 `rate` 是漏桶算法的长期平均额度，`burst` 是允许积累的超额量；`nodelay` 让仍有突发余量的请求立即处理，超过余量就拒绝。因此“30 r/s、burst 100”不等于任何固定一秒内严格最多 30 次，也不等于每秒重新赠送 100 次。突发额度按速率恢复。超额响应统一设为 429，代替模块默认的 503。[官方语义](https://nginx.org/en/docs/http/ngx_http_limit_req_module.html#limit_req)、[状态码配置](https://nginx.org/en/docs/http/ngx_http_limit_req_module.html#limit_req_status)。
 
 共享后端额度能阻止多个低频 IP 合计无限进入业务服务，但攻击者也可能占满共享额度，使正常用户同时遇到 429。它是保护源站资源的熔断边界，不是分布式攻击下的公平调度保证。单 IP 额度也会被同一出口下的多个用户共享。

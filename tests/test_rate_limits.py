@@ -222,11 +222,13 @@ class RateLimitTest(unittest.TestCase):
         self.assertIn("text/html", headers["Content-Type"])
         self.assertEqual(headers["Retry-After"], "5")
         self.assertEqual(headers["Cache-Control"], "no-store")
-        self.flood("/ebook/api/test", 40, distributed=True)
         headers = {}
         # 用新的 IP 耗尽自身 API 突发，避免前一组静态限流掩盖 API 响应。
-        for _ in range(20):
+        # 校验实际收到的第一个拒绝响应，而非额度恢复后可能成功的最后一次请求。
+        for _ in range(40):
             status, body = self.request("/ebook/api/test", ip="203.0.113.1", response_headers=headers)
+            if status == 429:
+                break
         self.assertEqual(status, 429)
         self.assertEqual(json.loads(body)["error"]["code"], "RATE_LIMITED")
         self.assertIn("请稍等", json.loads(body)["detail"])

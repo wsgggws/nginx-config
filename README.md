@@ -61,6 +61,7 @@ nginx/
 | `/me` | 原 `navydev.top` | 静态站 `/var/www/navydev.top/me/` |
 | `/rss` | 原 `rss.navydev.top` | 静态站 `/var/www/navydev.top/rss/` + API `127.0.0.1:8000` |
 | `/crabtris` | 原 `crabtris.navydev.top` | 静态站 `/var/www/crabtris.navydev.top/` |
+| `/metric` | 访问统计 + CPU/内存/磁盘/网络（公开） | GoAccess 静态报告 + Netdata `127.0.0.1:19999` |
 
 配置在 `config/nginx/conf.d/navydev-top.conf`；索引页在 `config/nginx/help/index.html`，
 部署时复制到 `/var/www/navydev/help/`。首页采用 [LuZhu.nvim](https://github.com/wsgggws/LuZhu.nvim) 最新潭绿配色作为默认主题（底色 `#1D3229`、正文 `#DCE8D5`、强调色 `#89C79B`），提供 GitHub 与 BiliBili 图标链接。
@@ -68,6 +69,14 @@ nginx/
 各路径都不要求尾斜杠；`/me/`、`/rss/`、`/crabtris/` 等旧形式仍然可用。
 老的子域名会 301 到新路径（`rss.navydev.top` → `navydev.top/rss`），老书签不会失效。
 `/nghh` 也会 301 到 `/me/nghh/`。
+
+`/metric` 对应独立项目 `../navydev.top_metric`，公开显示完整面板（系统在上，访问统计在下）。
+该项目的 CI 首次自动安装监控依赖，后续跳过安装并更新页面和程序；首次部署
+完成后再发布本仓库配置。手动部署入口为 `sudo bash scripts/deploy.sh`。
+`00-metric-log.conf` 定义独立日志格式，`metric-locations.conf` 提供公开页面、
+报告及 Netdata API 反代；19999 端口仍仅监听本机。专用日志 `/var/log/nginx/navydev-metric.access.log` 包含静态
+资源和接口；日志轮转沿用系统 `/etc/logrotate.d/nginx`。新增 location 若设置了
+自己的 `access_log`，也必须显式写入这份专用日志，才能保持统计完整。
 
 有声电子书那段有几处特别处理：
 

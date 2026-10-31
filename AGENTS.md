@@ -13,7 +13,7 @@
 - 监控实现位于 `../navydev.top_metric`；公开聚合页面的系统面板在上、访问统计在下。
 - 日志格式和 map 位于 `00-metric-log.conf`，文件名前缀保证在使用该格式的 server 配置前加载。
 - 专用日志覆盖全站。location 自己设置 `access_log` 时，要显式包含专用日志；静态资源也需要计数。
-- `metric-locations.conf` 负责公开页面、报告与 Netdata 子路径反代，同源 iframe 保持 `SAMEORIGIN`。Netdata 本机服务由监控项目管理。
+- `metric-locations.conf` 负责精简页面、配置/摘要 JSON、完整报告与 Netdata 子路径反代。日志从原始请求取路径并去掉查询参数，保留重写前的入口。Netdata 本机服务由监控项目管理。
 - 首次上线先等待监控项目部署成功，再发布中央配置。需要排查监控服务时读该项目的 `docs/operations.md`。
 
 ## 验证与发布

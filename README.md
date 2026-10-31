@@ -70,10 +70,10 @@ nginx/
 老的子域名会 301 到新路径（`rss.navydev.top` → `navydev.top/rss`），老书签不会失效。
 `/nghh` 也会 301 到 `/me/nghh/`。
 
-`/metric` 对应独立项目 `../navydev.top_metric`，公开显示完整面板（系统在上，访问统计在下）。
+`/metric` 对应独立项目 `../navydev.top_metric`，公开显示精简总览（系统卡片在上，路径计数在下）。
 该项目的 CI 首次自动安装监控依赖，后续跳过安装并更新页面和程序；首次部署
 完成后再发布本仓库配置。手动部署入口为 `sudo bash scripts/deploy.sh`。
-`00-metric-log.conf` 定义独立日志格式，`metric-locations.conf` 提供公开页面、
+`00-metric-log.conf` 保留重写前路径并去掉查询参数；`metric-locations.conf` 提供公开页面、配置/摘要 JSON、
 报告及 Netdata API 反代；19999 端口仍仅监听本机。专用日志 `/var/log/nginx/navydev-metric.access.log` 包含静态
 资源和接口；日志轮转沿用系统 `/etc/logrotate.d/nginx`。新增 location 若设置了
 自己的 `access_log`，也必须显式写入这份专用日志，才能保持统计完整。
